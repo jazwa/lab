@@ -1,0 +1,38 @@
+- name: Install Tailscale
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install dependencies (Ubuntu Server)
+      apt:
+        name: curl
+        state: present
+
+    - name: Add Tailscale repository (Ubuntu Server)
+      shell: |
+        curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/$(lsb_release -cs).noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+        echo "deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/tailscale.list
+
+    - name: Install Tailscale (Ubuntu Server)
+      apt:
+        update_cache: yes
+        name: tailscale
+        state: present
+
+    - name: Enable and start Tailscale service
+      systemd:
+        name: tailscaled
+        enabled: yes
+        state: started
+
+    - name: Ensure Tailscale starts on boot
+      systemd:
+        name: tailscaled
+        enabled: yes
+
+    - name: Display authentication message
+      debug:
+        msg: "Run 'sudo tailscale up' to authenticate your device with Tailscale."
+
+    - name: Completion message
+      debug:
+        msg: "Tailscale installation completed successfully!"
