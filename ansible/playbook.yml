@@ -1,0 +1,6 @@
+- name: Setup Homelab
+  hosts: localhost
+  become: yes
+  roles:
+    - install_tailscale
+    - install_docker
